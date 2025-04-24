@@ -1,79 +1,463 @@
 <!DOCTYPE html>
-<html>
-    <title>Static web</title>
+<html lang="en">
+<head>
+    <title>Deploy Static Websites on AWS S3</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css">
-   
-    <body>
-        <div>
-            <h1>Steps to cloud</h1>
-            <p>This is the first project</p>
-            <div>
-                <h2>Amazon S3 project: Deploy a static website on AWS using Amazon S3</h2>
-                <h3 id="myList">Create an S3 Bucket</h3>
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #003366;
+            --accent-color: #00a8e8;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --light-gray: #e9ecef;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: var(--box-shadow);
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .intro h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .step-container {
+            margin-bottom: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .step-header {
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .step-header .step-number {
+            background-color: white;
+            color: var(--primary-color);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .step-content {
+            padding: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin-left: 20px;
+        }
+
+        li {
+            position: relative;
+            padding: 10px 10px 10px 35px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: var(--light-gray);
+        }
+
+        li:before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        li.completed:before {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 14px;
+        }
+
+        .code-block {
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+
+        .optional {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+
+        .final-step {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .progress-container {
+            margin: 40px auto;
+            max-width: 600px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--light-gray);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 20px 0;
+            }
+            
+            header h1 {
+                font-size: 28px;
+            }
+            
+            .step-header {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Steps to Cloud</h1>
+            <p>Deploy Static Websites on AWS Amazon S3</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="intro">
+            <h2>Amazon S3 Project: Host a Static Website on AWS</h2>
+            <p>Follow this step-by-step guide to deploy your static website using Amazon S3. Track your progress by clicking on each step as you complete it.</p>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Complete</div>
+        </div>
+        
+        <div class="step-container">
+            <div class="step-header" data-step="1">
+                <span class="step-number">1</span>
+                <h3>Create an S3 Bucket</h3>
+            </div>
+            <div class="step-content">
                 <ul>
-                    <li>ign in to your AWS Management Console</li>
-                    <li>Go to the Amazon S3 service.</li>
-                    <li>Click the "Create bucket" button.</li>
-                    <li>Choose a unique name for your bucket. This name will be part of your website URL, so make it something appropriate.</li>
-                    <li>Leave the rest of the settings as default or adjust them according to your needs.</li>
-                    <li>Click the "Create" button to create the S3 bucket.</li>
+                    <li>Sign in to your AWS Management Console</li>
+                    <li>Go to the Amazon S3 service</li>
+                    <li>Click the "Create bucket" button</li>
+                    <li>Choose a unique name for your bucket (this will be part of your website URL)</li>
+                    <li>Leave the rest of the settings as default or adjust them according to your needs</li>
+                    <li>Click the "Create" button to create the S3 bucket</li>
                 </ul>
-            </div>
-            <div>
-                <h3 id="myList"> Configure Your S3 Bucket for Website Hosting</h3>
-                <ul>
-                    <li>After creating the bucket, go to the bucket's properties.</li>
-                    <li>Under the "Static website hosting" section, click "Edit."</li>
-                    <li>Select "Use this bucket to host a website."</li>
-                    <li>Enter the index document (e.g., index.html) and optionally, the error document (e.g., error.html).</li>
-                    <li>Click the "Apply" button. and Click "Save changes."</li>
-                </ul>
-            </div>
-            <div>
-                <h3 id="myList"> Upload Your Website Files</h3>
-                <ul>
-                    <li>In the S3 bucket, navigate to the "Objects" tab.</li>
-                    <li>Click the "Upload" button to upload your static website files. You can also use the AWS CLI or other tools to upload files.</li>
-                    <li>Once uploaded, make sure the files are publicly accessible. Select the files, click "Actions," and then choose "Make public."</li>
-                </ul>
-            </div>
-            <div>
-                <h3 id="myList"> Set Bucket Permissions</h3>
-                <ul>
-                    <li>To ensure public access to your website content, you need to configure the bucket's permissions:</li>
-                    <li>In the bucket's properties, go to the "Permissions" tab.</li>
-                    <li>Under "Bucket policy," click "Edit."</li>
-                    <li>Add a bucket policy like the following, replacing "YOUR_BUCKET_NAME" with your bucket name:</li>
-                    <li><code>
-                        {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Sid": "PublicReadGetObject",
-                                    "Effect": "Allow",
-                                    "Principal": "*",
-                                    "Action": "s3:GetObject",
-                                    "Resource": "arn:aws:s3:::YOUR_BUCKET_NAME/*"
-                                }
-                            ]
-                        }
-                        
-                    </code></li>
-                    <li>Click the "Apply/save" button.</li>
-                </ul>
-            </div>
-            <div>
-                <h3 id="myList">Configure DNS (Optional)</h3>
-                <p>If you want to use a custom domain for your website, configure DNS settings to point to your S3 bucket. You can use Amazon Route 53 for this purpose.</p>
-            </div>
-            <div>
-                <h3 id="myList">Verify Your Website</h3>
-                <p>Once your S3 bucket is configured, and your files are uploaded, you can access your website using the S3 endpoint URL or your custom domain if you set up DNS.</p>
-                <p>Your static website is now deployed and hosted on Amazon S3. Make sure to keep your website files updated by uploading new versions to your S3 bucket as needed.</p>
             </div>
         </div>
-        <script src="./javascript.js"></script>
-    </body>
+        
+        <div class="step-container">
+            <div class="step-header" data-step="2">
+                <span class="step-number">2</span>
+                <h3>Configure Your S3 Bucket for Website Hosting</h3>
+            </div>
+            <div class="step-content">
+                <ul>
+                    <li>After creating the bucket, go to the bucket's properties</li>
+                    <li>Under the "Static website hosting" section, click "Edit"</li>
+                    <li>Select "Use this bucket to host a website"</li>
+                    <li>Enter the index document (e.g., index.html) and optionally, the error document (e.g., error.html)</li>
+                    <li>Click "Save changes"</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="step-container">
+            <div class="step-header" data-step="3">
+                <span class="step-number">3</span>
+                <h3>Upload Your Website Files</h3>
+            </div>
+            <div class="step-content">
+                <ul>
+                    <li>In the S3 bucket, navigate to the "Objects" tab</li>
+                    <li>Click the "Upload" button to upload your static website files</li>
+                    <li>You can also use the AWS CLI or other tools to upload files</li>
+                    <li>Once uploaded, make sure the files are publicly accessible (we'll handle this in the next step)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="step-container">
+            <div class="step-header" data-step="4">
+                <span class="step-number">4</span>
+                <h3>Set Bucket Permissions</h3>
+            </div>
+            <div class="step-content">
+                <ul>
+                    <li>In the bucket's properties, go to the "Permissions" tab</li>
+                    <li>Under "Bucket policy", click "Edit"</li>
+                    <li>Add a bucket policy like the following, replacing "YOUR_BUCKET_NAME" with your bucket name:</li>
+                </ul>
+                <div class="code-block">
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::YOUR_BUCKET_NAME/*"
+        }
+    ]
+}
+                </div>
+                <ul>
+                    <li>Click the "Save" button</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="step-container">
+            <div class="step-header" data-step="5">
+                <span class="step-number">5</span>
+                <h3>Configure DNS (Optional)</h3>
+            </div>
+            <div class="step-content">
+                <div class="optional">
+                    <p>If you want to use a custom domain for your website, configure DNS settings to point to your S3 bucket. You can use Amazon Route 53 for this purpose:</p>
+                    <ul>
+                        <li>Go to the Route 53 console</li>
+                        <li>Create or select a hosted zone for your domain</li>
+                        <li>Create a new record set</li>
+                        <li>Set the "Alias" to "Yes" and select your S3 website endpoint</li>
+                        <li>Save the record set</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step-container">
+            <div class="step-header" data-step="6">
+                <span class="step-number">6</span>
+                <h3>Verify Your Website</h3>
+            </div>
+            <div class="step-content">
+                <ul>
+                    <li>Go back to your S3 bucket's "Properties" tab</li>
+                    <li>Under "Static website hosting", find your website endpoint URL</li>
+                    <li>Click on the URL or copy and paste it into your browser</li>
+                    <li>Verify that your website loads correctly</li>
+                </ul>
+                <div class="final-step">
+                    <p>Your static website is now deployed and hosted on Amazon S3! Make sure to keep your website files updated by uploading new versions to your S3 bucket as needed.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Steps to Cloud - Your Guide to AWS Deployment</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize elements
+            const listItems = document.querySelectorAll('li');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const stepHeaders = document.querySelectorAll('.step-header');
+            
+            // Count total items for progress calculation
+            const totalItems = listItems.length;
+            let completedItems = 0;
+            
+            // Load saved progress if available
+            loadProgress();
+            
+            // Add click event listeners to list items
+            listItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('completed');
+                    updateProgress();
+                    saveProgress();
+                });
+            });
+            
+            // Make step headers collapsible
+            stepHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    const allContents = document.querySelectorAll('.step-content');
+                    
+                    // Close all other contents
+                    allContents.forEach(cont => {
+                        if (cont !== content && cont.style.maxHeight) {
+                            cont.style.maxHeight = null;
+                            cont.style.opacity = '0';
+                        }
+                    });
+                    
+                    // Toggle current content
+                    if (!content.style.maxHeight) {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        content.style.opacity = '1';
+                    } else {
+                        content.style.maxHeight = null;
+                        content.style.opacity = '0';
+                    }
+                });
+            });
+            
+            // Open the first step by default
+            if (stepHeaders.length > 0) {
+                const firstContent = stepHeaders[0].nextElementSibling;
+                firstContent.style.maxHeight = firstContent.scrollHeight + 'px';
+                firstContent.style.opacity = '1';
+            }
+            
+            // Update progress bar
+            function updateProgress() {
+                completedItems = document.querySelectorAll('li.completed').length;
+                const progress = Math.round((completedItems / totalItems) * 100);
+                progressFill.style.width = progress + '%';
+                progressText.textContent = progress + '% Complete';
+            }
+            
+            // Save progress to local storage
+            function saveProgress() {
+                const completedItemsIndexes = [];
+                listItems.forEach((item, index) => {
+                    if (item.classList.contains('completed')) {
+                        completedItemsIndexes.push(index);
+                    }
+                });
+                localStorage.setItem('s3WebsiteProgress', JSON.stringify(completedItemsIndexes));
+            }
+            
+            // Load progress from local storage
+            function loadProgress() {
+                const savedProgress = localStorage.getItem('s3WebsiteProgress');
+                if (savedProgress) {
+                    const completedItemsIndexes = JSON.parse(savedProgress);
+                    completedItemsIndexes.forEach(index => {
+                        if (listItems[index]) {
+                            listItems[index].classList.add('completed');
+                        }
+                    });
+                    updateProgress();
+                }
+            }
+            
+            // Initialize progress on page load
+            updateProgress();
+        });
+    </script>
+</body>
 </html>
