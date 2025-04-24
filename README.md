@@ -68,7 +68,7 @@ Content delivery network is configured to serve the website with HTTPS enabled.
 
 SSL/TLS certificate has been provisioned for secure HTTPS connections.
 
-![Certificate Manager](images/certificate%20manager.png)
+![Certificate Manager](images/certificate.png)
 
 ### 5. AWS Support Case
 
